@@ -29,3 +29,18 @@ steps:
       - docker-compose#v5.3.0:
           run: app
     depends_on: quality_assurance
+
+  - label: 'gogogo'
+    command: |
+      REGISTRY="$(nsc workspace describe -o json -k registry_url)"
+      SERVICE="app"
+      DOCKER_REPOSITORY="${REGISTRY}/${BUILDKITE_PIPELINE_SLUG}-${SERVICE}"
+      DOCKER_TAG="build-${BUILDKITE_BUILD_NUMBER}"
+      DOCKER_IMAGE="${DOCKER_REPOSITORY}:${DOCKER_TAG}"
+      docker build \
+        --file Dockerfile \
+        --target production \
+        --progress plain \
+        --tag "${DOCKER_IMAGE}" \
+        --push \
+        .
